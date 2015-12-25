@@ -23,11 +23,11 @@ public class PlayerListener implements Listener {
 	public void onInteract(PlayerInteractEvent event) {
 		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.SPONGE)
 			return;
-		Player p = event.getPlayer();
+		final Player p = event.getPlayer();
 		ItemStack i = p.getItemInHand();
-		if (i.getType() != Material.BLAZE_ROD || i.getItemMeta() == null || !i.getItemMeta().getDisplayName().equals("§aCreate a Turtle"))
+		if (i.getType() != Material.BLAZE_ROD || i.getItemMeta() == null || !i.getItemMeta().getDisplayName().equals("Create a Turtle"))
 			return;
-		Block b = event.getClickedBlock();
+		final Block b = event.getClickedBlock();
 		for (Turtle t : Turtle.turtles)
 			if (t.getLocation().getBlockX() == b.getX() && t.getLocation().getBlockY() == b.getY()
 					&& t.getLocation().getBlockZ() == b.getZ()) {
@@ -65,7 +65,7 @@ public class PlayerListener implements Listener {
 		Turtle t = Turtle.getTurtleAt(event.getBlock());
 		if (t == null)
 			return;
-		if (event.getPlayer().getName() != t.getOwner().getName() && !event.getPlayer().isOp()) {
+		if (!event.getPlayer().getName().equalsIgnoreCase(t.getOwner().getName()) && !event.getPlayer().isOp()) {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(ChatColor.RED + "You do not own this turtle.");
 		} else {
@@ -78,13 +78,14 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onOpeninv(PlayerInteractEvent event) {
 		if (event.getPlayer().isSneaking() || event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.SPONGE
-				|| event.getAction() == Action.LEFT_CLICK_BLOCK)
+				|| event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			return;
+		}
 		Player p = event.getPlayer();
 		Turtle t = Turtle.getTurtleAt(event.getClickedBlock());
 		if (t == null)
 			return;
-		if (t.getOwner().getName() != p.getName()) {
+		if (!t.getOwner().getName().equalsIgnoreCase(p.getName())) {
 			p.sendMessage(ChatColor.RED + "You do not own this turtle!");
 			return;
 		}

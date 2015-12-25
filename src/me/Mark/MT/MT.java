@@ -74,7 +74,7 @@ public class MT extends JavaPlugin {
 		if (label.equalsIgnoreCase("turtlerod")) {
 			ItemStack rod = new ItemStack(Material.BLAZE_ROD);
 			ItemMeta im = rod.getItemMeta();
-			im.setDisplayName("§aCreate a Turtle");
+			im.setDisplayName("Create a Turtle");
 			rod.setItemMeta(im);
 			((Player) sender).getInventory().addItem(rod);
 			((Player) sender).getInventory().addItem(new ItemStack(Material.SPONGE));
