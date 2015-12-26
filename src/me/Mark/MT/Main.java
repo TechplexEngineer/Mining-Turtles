@@ -32,8 +32,10 @@ public class Main extends JavaPlugin {
 	 */
 	public static Main inst;
 	public FileConfiguration config;
-	public static final Material turtleMaterial = Material.DISPENSER;
+	public static final Material turtleMaterial = Material.DISPENSER; //@note use a directioal block
 	public static final Material turtleWand = Material.BLAZE_ROD;
+	
+	//@note continued: use one of: Banner, Bed, Button, Chest, CocoaPlant, Diode, DirectionalContainer, Dispenser, Door, EnderChest, Furnace, FurnaceAndDispenser, Gate, Ladder, Lever, PistonBaseMaterial, PistonExtensionMaterial, Pumpkin, RedstoneTorch, Sign, SimpleAttachableMaterialData, Skull, Stairs, Torch, TrapDoor, TripwireHook
 
 	@Override
 	public void onEnable() {

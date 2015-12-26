@@ -60,6 +60,15 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 				System.out.println(ret);
 			}
 		}
+		
+		if(args[1].equalsIgnoreCase("rotate")) {
+			if (args.length > 2) {
+				t.rotate(args[2]);
+			} else {
+				boolean ret = t.rotate(BlockFace.NORTH);
+				System.out.println(ret);
+			}
+		}
 //		System.out.println(StringUtils.join(args," | "));
 //		System.out.println();
 //		for(Turtle tur : TurtleMgr.getTurtles()) {

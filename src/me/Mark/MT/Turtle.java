@@ -1,17 +1,16 @@
 package me.Mark.MT;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Directional;
 
 public class Turtle {
 
@@ -108,7 +107,7 @@ public class Turtle {
 		return true;
 	}
 	
-	public boolean move(String face) {
+	public BlockFace str2blockFace(String face) {
 		BlockFace out = null;
 		if (face.equalsIgnoreCase("NORTH")) {
 			out = BlockFace.NORTH;
@@ -128,6 +127,11 @@ public class Turtle {
 		if (face.equalsIgnoreCase("DOWN")) {
 			out = BlockFace.DOWN;
 		}
+		return out;
+	}
+	
+	public boolean move(String face) {
+		BlockFace out = str2blockFace(face);
 		if (out == null) {
 			return false;
 		} else {
@@ -140,6 +144,36 @@ public class Turtle {
 		this.loc.getBlock().setType(Material.AIR);
 		this.loc = loc;
 		loc.getBlock().setType(mat);
+	}
+	
+	public boolean rotate(BlockFace dir) {
+		
+		Block b = this.loc.getBlock();
+
+		
+		BlockState state = b.getState();
+		try {
+			//@todo what happens if the block is not directional?
+			//@note throws an exception which we catch. SHould be able to use reflection...
+			Directional d = ((Directional)state.getData());
+			d.setFacingDirection(dir);
+			state.update();
+			System.out.println("Is Instance");
+			return true;
+		} catch (ClassCastException e) {
+			System.out.println("Is not Instance");
+		return false;
+		}
+
+	}
+	
+	public boolean rotate(String dir) {
+		BlockFace out = str2blockFace(dir);
+		if (out == null) {
+			return false;
+		} else {
+			return rotate(out);
+		}
 	}
 
 //	public void setScript(Script script) {
