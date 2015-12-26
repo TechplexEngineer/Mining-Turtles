@@ -108,10 +108,10 @@ public class Turtle {
 
 //	actions
 	
-	public boolean breakBlock(Face face) {
+	public boolean breakBlock(BlockFace face) {
 		if (getInventory().firstEmpty() == -1)
 			return false;
-		Block b = loc.getBlock().getRelative(getBlockFace(face));
+		Block b = loc.getBlock().getRelative(face);
 		if (b.getType() == Material.BEDROCK 
 				|| b.getType() == Material.CHEST 
 				|| b.getType() == Material.AIR
@@ -124,6 +124,15 @@ public class Turtle {
 			getInventory().addItem(is);
 		b.setType(Material.AIR);
 		return true;
+	}
+	
+	public boolean breakBlock(String face) {
+		BlockFace out = str2blockFace(face);
+		if (out == null) {
+			return false;
+		} else {
+			return breakBlock(out);
+		}
 	}
 
 	/*
@@ -184,6 +193,23 @@ public class Turtle {
 		}
 		if (face.equalsIgnoreCase("DOWN")) {
 			out = BlockFace.DOWN;
+		}
+		if (face.equalsIgnoreCase("FORWARD")) {
+			out = getDir();
+		}
+		if (face.equalsIgnoreCase("BACK")) {
+			out = getDir().getOppositeFace();
+		}
+		if (face.equalsIgnoreCase("RIGHT") || face.equalsIgnoreCase("LEFT")) {
+			BlockFace[] dirs = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+			int s = java.util.Arrays.asList(dirs).indexOf(getDir());
+			if (face.equalsIgnoreCase("RIGHT")) {
+				s ++;
+			}
+			if (face.equalsIgnoreCase("LEFT")) {
+				s --;
+			}
+			out = dirs[s%4];
 		}
 		return out;
 	}
