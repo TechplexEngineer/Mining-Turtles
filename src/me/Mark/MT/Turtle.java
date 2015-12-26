@@ -94,13 +94,17 @@ public class Turtle {
 	 * return Material.AIR; return type; }
 	 */
 
-	
+	public void setLocation(Location loc) {
+		this.loc.getBlock().setType(Material.AIR);
+		this.loc = loc;
+		loc.getBlock().setType(mat);
+	}
 
 	public boolean move(BlockFace face) {
 		
 		Location loc = this.loc.getBlock().getRelative(face).getLocation();
 		if (loc.getBlock().getType() != Material.AIR) {
-			System.out.println("Can't move, block in the way"+loc.getBlock().getType());
+			System.out.println("Can't move, "+loc.getBlock().getType()+" block in the way.");
 			return false;
 		}
 		setLocation(loc);
@@ -140,11 +144,7 @@ public class Turtle {
 	}
 	
 
-	public void setLocation(Location loc) {
-		this.loc.getBlock().setType(Material.AIR);
-		this.loc = loc;
-		loc.getBlock().setType(mat);
-	}
+	
 	
 	public boolean rotate(BlockFace dir) {
 		
