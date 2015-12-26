@@ -87,13 +87,14 @@ public class PlayerListener implements Listener {
 					player.sendMessage(ChatColor.RED + "Please enter a valid name.");
 					return;
 				}
+				System.out.println("Creating new turtle named:"+name);
 				Turtle t = TurtleMgr.getByName(name);
 				if (t == null) {
 					t = new Turtle(name, Main.turtleMaterial, blk.getLocation(), player.getName());
 					TurtleMgr.add(t);
-					player.sendMessage("Created turtle: " + t.getName());
+					player.sendMessage(ChatColor.GREEN + "Created turtle: " + t.getName());
 				} else {
-					player.sendMessage("A turtle with that name already exists.");
+					player.sendMessage(ChatColor.RED + "A turtle with that name already exists.");
 				}
 			}
 

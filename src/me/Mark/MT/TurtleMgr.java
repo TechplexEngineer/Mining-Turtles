@@ -6,25 +6,26 @@
 package me.Mark.MT;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import org.bukkit.Location;
 
-import org.bukkit.block.Block;
 
 /**
  * Manage a list of turtles
  * @author techplex
  */
 public class TurtleMgr {
-	private static HashMap<String, Turtle> turtles = new HashMap<String,Turtle>();
+	private static List<Turtle> turtles = new ArrayList<Turtle>();
 	
 	/**
 	 * Get a list of turtles
 	 * @return a collection of turtles
 	 */
-	public static Collection<Turtle> getTurtles() {
-		return turtles.values();
+	public static List<Turtle> getTurtles() {
+		return turtles;
 	}
 	
 	/**
@@ -34,7 +35,7 @@ public class TurtleMgr {
 	 */
 	public static boolean add(Turtle t) {
 		if (TurtleMgr.getByName(t.getName()) == null) {
-			turtles.put(t.getName(), t);
+			turtles.add(t);
 			return true;
 		}
 		return false;
@@ -45,8 +46,8 @@ public class TurtleMgr {
 	 * Remove a turtle from the list
 	 * @param t turtle to remove
 	 */
-	public static void remove(Turtle t) {
-		turtles.remove(t.getName());
+	public static void remove(String name) {
+		turtles.remove(TurtleMgr.getByName(name));
 	}
 
 	/**
@@ -55,7 +56,7 @@ public class TurtleMgr {
 	 * @return the turtle if found, null otherwise
 	 */
 	public static Turtle getByLoc(Location l) {
-		for (Turtle t : turtles.values())
+		for (Turtle t : turtles)
 			if (t.getLocation().equals(l)) {
 				return t;
 			}
@@ -68,6 +69,10 @@ public class TurtleMgr {
 	 * @return the turtle if found, null otherwise
 	 */
 	public static Turtle getByName(String name) {
-		return turtles.get(name);
+		for (Turtle t : turtles)
+			if (t.getName().equals(name)) {
+				return t;
+			}
+		return null;
 	}
 }

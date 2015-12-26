@@ -97,13 +97,44 @@ public class Turtle {
 
 	
 
-	public boolean move(Face face) {
-		Location loc = this.loc.getBlock().getRelative(getBlockFace(face)).getLocation();
-		if (loc.getBlock().getType() != Material.AIR)
+	public boolean move(BlockFace face) {
+		
+		Location loc = this.loc.getBlock().getRelative(face).getLocation();
+		if (loc.getBlock().getType() != Material.AIR) {
+			System.out.println("Can't move, block in the way"+loc.getBlock().getType());
 			return false;
+		}
 		setLocation(loc);
 		return true;
 	}
+	
+	public boolean move(String face) {
+		BlockFace out = null;
+		if (face.equalsIgnoreCase("NORTH")) {
+			out = BlockFace.NORTH;
+		}
+		if (face.equalsIgnoreCase("EAST")) {
+			out = BlockFace.EAST;
+		}
+		if (face.equalsIgnoreCase("SOUTH")) {
+			out = BlockFace.SOUTH;
+		}
+		if (face.equalsIgnoreCase("WEST")) {
+			out = BlockFace.WEST;
+		}
+		if (face.equalsIgnoreCase("UP")) {
+			out = BlockFace.UP;
+		}
+		if (face.equalsIgnoreCase("DOWN")) {
+			out = BlockFace.DOWN;
+		}
+		if (out == null) {
+			return false;
+		} else {
+			return move(out);
+		}
+	}
+	
 
 	public void setLocation(Location loc) {
 		this.loc.getBlock().setType(Material.AIR);
@@ -173,7 +204,7 @@ public class Turtle {
 				loc.getWorld().dropItem(loc.add(.5, .5, .5), is);
 		inv.clear();
 		loc.getBlock().breakNaturally();
-		TurtleMgr.remove(this);
+		TurtleMgr.remove(this.getName());
 	}
 
 	/*
@@ -234,23 +265,23 @@ public class Turtle {
 		return BlockFace.SELF;
 	}
 
-	public void processCommand(String label, String[] args) {
-		if (label.equalsIgnoreCase("move"))
-			move(Face.valueOf(args[0].toUpperCase()));
-		else if (label.equalsIgnoreCase("break")) {
-			if (breakBlock(Face.valueOf(args[0].toUpperCase())))
-				mined++;
-		} else if (label.equalsIgnoreCase("place")) {
-			place(Face.valueOf(args[0].toUpperCase()), getType(args[1]));
-		} else if (label.equalsIgnoreCase("if")) {
-			if (check(Face.valueOf(args[0].toUpperCase()), getType(args[1]))) {
-				String[] argss = new String[args.length - 3];
-				for (int i = 3; i < args.length; i++)
-					argss[i - 3] = args[i];
-				processCommand(args[2], argss);
-			}
-		}
-	}
+//	public void processCommand(String label, String[] args) {
+//		if (label.equalsIgnoreCase("move"))
+//			move(Face.valueOf(args[0].toUpperCase()));
+//		else if (label.equalsIgnoreCase("break")) {
+//			if (breakBlock(Face.valueOf(args[0].toUpperCase())))
+//				mined++;
+//		} else if (label.equalsIgnoreCase("place")) {
+//			place(Face.valueOf(args[0].toUpperCase()), getType(args[1]));
+//		} else if (label.equalsIgnoreCase("if")) {
+//			if (check(Face.valueOf(args[0].toUpperCase()), getType(args[1]))) {
+//				String[] argss = new String[args.length - 3];
+//				for (int i = 3; i < args.length; i++)
+//					argss[i - 3] = args[i];
+//				processCommand(args[2], argss);
+//			}
+//		}
+//	}
 
 	private Material getType(String arg) {
 		if (arg.startsWith("slot:")) {

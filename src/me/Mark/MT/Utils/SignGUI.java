@@ -46,6 +46,11 @@ public class SignGUI {
                     final WrappedChatComponent[] chatarray = event.getPacket().getChatComponentArrays().getValues().get(0);
                     final String[] lines = {chatarray[0].getJson(), chatarray[1].getJson(), chatarray[2].getJson(), chatarray[3].getJson()};
                     final SignGUIListener response = listeners.remove(event.getPlayer().getName());
+					
+					//chop off the nasty doublequotes
+					for (int i=0; i<lines.length; i++) {
+						lines[i] = lines[i].substring(1,lines[i].length()-1);
+					}
                  
                     if (v == null) return;  
                     if (bp.getX() != v.getBlockX()) return;
