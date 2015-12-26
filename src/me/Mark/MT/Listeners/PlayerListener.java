@@ -1,10 +1,8 @@
 package me.Mark.MT.Listeners;
 
-import java.util.logging.Logger;
 import me.Mark.MT.Main;
 import me.Mark.MT.Utils.SignGUI;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,13 +11,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import me.Mark.MT.Turtle;
 import me.Mark.MT.TurtleMgr;
-import static org.bukkit.Bukkit.getLogger;
-import org.bukkit.Location;
-import org.bukkit.block.Dispenser;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
