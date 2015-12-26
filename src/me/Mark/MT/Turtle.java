@@ -29,7 +29,7 @@ public class Turtle {
 		this.loc = loc;
 		this.mat = mat;
 		this.owner = owner;
-		inv = Bukkit.createInventory(null, 9 * 4, "a" + name);
+		inv = Bukkit.createInventory(null, 9 * 4,  name + " the turtle");
 	}
 
 	public Turtle(String name, Material mat, Location loc, String owner, Script script) {

@@ -33,6 +33,7 @@ public class Main extends JavaPlugin {
 	public static Main inst;
 	public FileConfiguration config;
 	public static final Material turtleMaterial = Material.DISPENSER;
+	public static final Material turtleWand = Material.BLAZE_ROD;
 
 	@Override
 	public void onEnable() {
@@ -55,9 +56,9 @@ public class Main extends JavaPlugin {
 		}
 		for (String s : c.getKeys(false)) {
 			@SuppressWarnings("deprecation")
-			Turtle t = new Turtle(s, Material.getMaterial(c.getInt(s + ".material")),
-					new Location(Bukkit.getWorld(c.getString(s + ".location.world")), c.getInt(s + ".location.x"),
-							c.getInt(s + ".location.y"), c.getInt(s + ".location.z")),
+			Turtle t = new Turtle(s,
+					Material.getMaterial(c.getInt(s + ".material")),
+					new Location(Bukkit.getWorld(c.getString(s + ".location.world")), c.getInt(s + ".location.x"), c.getInt(s + ".location.y"), c.getInt(s + ".location.z")),
 					c.getString(s + ".owner"));
 			@SuppressWarnings("unchecked")
 			ItemStack[] content = ((List<ItemStack>) c.get(s + ".inv")).toArray(new ItemStack[0]);
@@ -73,7 +74,7 @@ public class Main extends JavaPlugin {
 			return false;
 		}
 		if (label.equalsIgnoreCase("turtlerod")) {
-			ItemStack rod = new ItemStack(Material.BLAZE_ROD);
+			ItemStack rod = new ItemStack(turtleWand);
 			ItemMeta im = rod.getItemMeta();
 			im.setDisplayName("Create a Turtle");
 			rod.setItemMeta(im);

@@ -1,5 +1,6 @@
 package me.Mark.MT.Listeners;
 
+import java.util.logging.Logger;
 import me.Mark.MT.Main;
 import me.Mark.MT.Utils.SignGUI;
 import org.bukkit.ChatColor;
@@ -15,6 +16,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import me.Mark.MT.Turtle;
+import static org.bukkit.Bukkit.getLogger;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
@@ -24,48 +27,10 @@ public class PlayerListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void onInteract(PlayerInteractEvent event) {
-		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Main.turtleMaterial) {
-			return;
-		}
-		final Player p = event.getPlayer();
-		ItemStack i = p.getItemInHand();
-		if (i.getType() != Material.BLAZE_ROD || i.getItemMeta() == null || !i.getItemMeta().getDisplayName().equals("Create a Turtle"))
-			return;
-		final Block b = event.getClickedBlock();
-		for (Turtle t : Turtle.turtles)
-			if (t.getLocation().getBlockX() == b.getX() && t.getLocation().getBlockY() == b.getY()
-					&& t.getLocation().getBlockZ() == b.getZ()) {
-				p.sendMessage(ChatColor.RED + "That is " + t.getName() + " owned by " + t.getOwnerName());
-				event.setCancelled(true);
-				return;
-			}
-		SignGUI gui = new SignGUI(plugin);
-		gui.open(p, new String[]{"", "Enter a turtle", "name on the first", "line of this sign."}, new SignGUI.SignGUIListener() {
-			@Override
-			public void onSignDone(Player player, String[] lines) {
-				String name = lines[0];
-				if (name.length() == 0) {
-					p.sendMessage(ChatColor.RED + "Please enter a valid name.");
-					return;
-				}
-				Turtle t = Turtle.getByName(name);
-				if (t == null) {
-					t = new Turtle(name, Main.turtleMaterial, b.getLocation(), p.getName());
-					Turtle.turtles.add(t);
-					p.sendMessage("Created turtle: " + t.getName());
-				} else {
-					p.sendMessage("A turtle with that name already exists.");
-				}
-			}
-	
-		});
-
-//		gui.setSlot(AnvilGUI.AnvilSlot.INPUT_LEFT, new ItemStack(Material.NAME_TAG));
-//		gui.open();
-	}
-
+	/**
+	 * Handle the removal of turtles when blocks are broken
+	 * @param event 
+	 */
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {
 		if (event.getBlock().getType() != Main.turtleMaterial)
@@ -92,14 +57,50 @@ public class PlayerListener implements Listener {
 			return;
 		}
 		Player p = event.getPlayer();
-		Turtle t = Turtle.getTurtleAt(event.getClickedBlock());
-		if (t == null)
+		Block blk = event.getClickedBlock();
+		Turtle t = Turtle.getTurtleAt(blk);
+		if (t == null) {
+			Player player = event.getPlayer();
+			if (player.getItemInHand().getType() == Main.turtleWand) {
+				createTurtle(p, blk);
+				event.setCancelled(true);
+			}
 			return;
+		}
 		if (!t.getOwner().getName().equalsIgnoreCase(p.getName())) {
 			p.sendMessage(ChatColor.RED + "You do not own this turtle!");
 			return;
 		}
 		p.openInventory(t.getInventory());
 		event.setCancelled(true);
+	}
+	
+	/**
+	 * Ask the player for the name of a turtle and create one if name not exists
+	 * @param player
+	 * @param blk
+	 */
+	public void createTurtle(Player player, final Block blk) {
+		//get the name of the turtle from the user
+		SignGUI gui = new SignGUI(plugin);
+		gui.open(player, new String[]{"", "Enter a turtle", "name on the first", "line of this sign."}, new SignGUI.SignGUIListener() {
+			@Override
+			public void onSignDone(Player player, String[] lines) {
+				String name = lines[0];
+				if (name.length() == 0) {
+					player.sendMessage(ChatColor.RED + "Please enter a valid name.");
+					return;
+				}
+				Turtle t = Turtle.getByName(name);
+				if (t == null) {
+					t = new Turtle(name, Main.turtleMaterial, blk.getLocation(), player.getName());
+					Turtle.turtles.add(t);
+					player.sendMessage("Created turtle: " + t.getName());
+				} else {
+					player.sendMessage("A turtle with that name already exists.");
+				}
+			}
+
+		});
 	}
 }
