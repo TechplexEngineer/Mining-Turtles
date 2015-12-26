@@ -1,6 +1,6 @@
 name: MiningTurtles
 author: NubeBuster
-main: me.Mark.MT.MT
+main: me.Mark.MT.Main
 version: 1.2
 prefix: Mining-Turtles
 commands:

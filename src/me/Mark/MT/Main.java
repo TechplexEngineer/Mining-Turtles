@@ -23,22 +23,23 @@ import me.Mark.MT.Commands.ReloadCMD;
 import me.Mark.MT.Commands.TurtleCMD;
 import me.Mark.MT.Listeners.PlayerListener;
 
-public class MT extends JavaPlugin {
+public class Main extends JavaPlugin {
 
 	/**
 	 * TODO check block data in PLACE
 	 * TODO play break particles
 	 * TODO /reloadscripts Realoading
 	 */
-	public static MT inst;
+	public static Main inst;
 	public FileConfiguration config;
+	public static final Material turtleMaterial = Material.DISPENSER;
 
 	@Override
 	public void onEnable() {
 		inst = this;
 		configs();
 		PluginManager pm = Bukkit.getPluginManager();
-		pm.registerEvents(new PlayerListener(), this);
+		pm.registerEvents(new PlayerListener(this), this);
 
 		getCommand("turtle").setExecutor(new TurtleCMD());
 		getCommand("reloadscripts").setExecutor(new ReloadCMD());
@@ -77,8 +78,8 @@ public class MT extends JavaPlugin {
 			im.setDisplayName("Create a Turtle");
 			rod.setItemMeta(im);
 			((Player) sender).getInventory().addItem(rod);
-			((Player) sender).getInventory().addItem(new ItemStack(Material.SPONGE));
-			sender.sendMessage(ChatColor.GREEN + "Click with this rod on a sponge to create a turtle.");
+			((Player) sender).getInventory().addItem(new ItemStack(turtleMaterial));
+			sender.sendMessage(ChatColor.GREEN + "Click with this rod on a "+turtleMaterial.toString()+" to create a turtle.");
 		}
 		return false;
 	}

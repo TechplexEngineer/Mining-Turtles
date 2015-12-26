@@ -1,5 +1,7 @@
 package me.Mark.MT.Listeners;
 
+import me.Mark.MT.Main;
+import me.Mark.MT.Utils.SignGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,16 +15,20 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import me.Mark.MT.Turtle;
-import me.Mark.MT.Utils.AnvilClickEventHandler;
-import me.Mark.MT.Utils.AnvilGUI;
-import me.Mark.MT.Utils.AnvilGUI.AnvilClickEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
+	JavaPlugin plugin;
+	
+	public PlayerListener(JavaPlugin plugin) {
+		this.plugin = plugin;
+	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onInteract(PlayerInteractEvent event) {
-		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.SPONGE)
+		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Main.turtleMaterial) {
 			return;
+		}
 		final Player p = event.getPlayer();
 		ItemStack i = p.getItemInHand();
 		if (i.getType() != Material.BLAZE_ROD || i.getItemMeta() == null || !i.getItemMeta().getDisplayName().equals("Create a Turtle"))
@@ -35,32 +41,34 @@ public class PlayerListener implements Listener {
 				event.setCancelled(true);
 				return;
 			}
-		AnvilGUI gui = new AnvilGUI(p, new AnvilClickEventHandler() {
+		SignGUI gui = new SignGUI(plugin);
+		gui.open(p, new String[]{"", "Enter a turtle", "name on the first", "line of this sign."}, new SignGUI.SignGUIListener() {
 			@Override
-			public void onAnvilClick(AnvilClickEvent event) {
-				String name = event.getName().replace(" ", "_");
+			public void onSignDone(Player player, String[] lines) {
+				String name = lines[0];
 				if (name.length() == 0) {
 					p.sendMessage(ChatColor.RED + "Please enter a valid name.");
 					return;
 				}
 				Turtle t = Turtle.getByName(name);
 				if (t == null) {
-					t = new Turtle(name, Material.SPONGE, b.getLocation(), p.getName());
+					t = new Turtle(name, Main.turtleMaterial, b.getLocation(), p.getName());
 					Turtle.turtles.add(t);
 					p.sendMessage("Created turtle: " + t.getName());
 				} else {
 					p.sendMessage("A turtle with that name already exists.");
 				}
 			}
+	
 		});
 
-		gui.setSlot(AnvilGUI.AnvilSlot.INPUT_LEFT, new ItemStack(Material.NAME_TAG));
-		gui.open();
+//		gui.setSlot(AnvilGUI.AnvilSlot.INPUT_LEFT, new ItemStack(Material.NAME_TAG));
+//		gui.open();
 	}
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {
-		if (event.getBlock().getType() != Material.SPONGE)
+		if (event.getBlock().getType() != Main.turtleMaterial)
 			return;
 		Turtle t = Turtle.getTurtleAt(event.getBlock());
 		if (t == null)
@@ -77,7 +85,9 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onOpeninv(PlayerInteractEvent event) {
-		if (event.getPlayer().isSneaking() || event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.SPONGE
+		if (event.getPlayer().isSneaking() 
+				|| event.getClickedBlock() == null 
+				|| event.getClickedBlock().getType() != Main.turtleMaterial
 				|| event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			return;
 		}

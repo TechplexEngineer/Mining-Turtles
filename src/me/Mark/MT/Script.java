@@ -37,7 +37,7 @@ public class Script {
 	 */
 
 	public static Script getFromConfig(String name) {
-		List<String> cmdsS = MT.inst.config.getStringList("script." + name);
+		List<String> cmdsS = Main.inst.config.getStringList("script." + name);
 		Command[] cmds = new Command[cmdsS.size()];
 		for (int i = 0; i < cmdsS.size(); i++)
 			cmds[i] = new Command(cmdsS.get(i));
@@ -45,6 +45,6 @@ public class Script {
 	}
 
 	public static Set<String> getScripts() {
-		return  MT.inst.config.getConfigurationSection("script").getKeys(false);
+		return  Main.inst.config.getConfigurationSection("script").getKeys(false);
 	}
 }

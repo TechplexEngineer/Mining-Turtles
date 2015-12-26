@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import me.Mark.MT.MT;
+import me.Mark.MT.Main;
 
 public class ReloadCMD implements CommandExecutor {
 
@@ -15,8 +15,8 @@ public class ReloadCMD implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "You don't have permission.");
 			return false;
 		}
-		MT.inst.reloadConfig();
-		MT.inst.config = MT.inst.getConfig();
+		Main.inst.reloadConfig();
+		Main.inst.config = Main.inst.getConfig();
 		sender.sendMessage(ChatColor.GREEN + "Reloaded the scripts!");
 		return false;
 	}

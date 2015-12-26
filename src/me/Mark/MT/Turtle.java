@@ -120,7 +120,7 @@ public class Turtle {
 		timees = timess * script.getLength();
 		mined = 0;
 		placed = 0;
-		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(MT.inst, new Runnable() {
+		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.inst, new Runnable() {
 			@Override
 			public void run() {
 				if (timees > 0) {
