@@ -16,8 +16,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import me.Mark.MT.Turtle;
+import me.Mark.MT.TurtleMgr;
 import static org.bukkit.Bukkit.getLogger;
 import org.bukkit.Location;
+import org.bukkit.block.Dispenser;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
@@ -35,7 +37,7 @@ public class PlayerListener implements Listener {
 	public void onBreak(BlockBreakEvent event) {
 		if (event.getBlock().getType() != Main.turtleMaterial)
 			return;
-		Turtle t = Turtle.getTurtleAt(event.getBlock());
+		Turtle t = TurtleMgr.getByLoc(event.getBlock().getLocation());
 		if (t == null)
 			return;
 		if (!event.getPlayer().getName().equalsIgnoreCase(t.getOwner().getName()) && !event.getPlayer().isOp()) {
@@ -58,7 +60,7 @@ public class PlayerListener implements Listener {
 		}
 		Player p = event.getPlayer();
 		Block blk = event.getClickedBlock();
-		Turtle t = Turtle.getTurtleAt(blk);
+		Turtle t = TurtleMgr.getByLoc(blk.getLocation());
 		if (t == null) {
 			Player player = event.getPlayer();
 			if (player.getItemInHand().getType() == Main.turtleWand) {
@@ -91,10 +93,10 @@ public class PlayerListener implements Listener {
 					player.sendMessage(ChatColor.RED + "Please enter a valid name.");
 					return;
 				}
-				Turtle t = Turtle.getByName(name);
+				Turtle t = TurtleMgr.getByName(name);
 				if (t == null) {
 					t = new Turtle(name, Main.turtleMaterial, blk.getLocation(), player.getName());
-					Turtle.turtles.add(t);
+					TurtleMgr.add(t);
 					player.sendMessage("Created turtle: " + t.getName());
 				} else {
 					player.sendMessage("A turtle with that name already exists.");

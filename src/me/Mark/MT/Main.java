@@ -63,7 +63,7 @@ public class Main extends JavaPlugin {
 			@SuppressWarnings("unchecked")
 			ItemStack[] content = ((List<ItemStack>) c.get(s + ".inv")).toArray(new ItemStack[0]);
 			t.getInventory().setContents(content);
-			Turtle.turtles.add(t);
+			TurtleMgr.add(t);
 		}
 	}
 
@@ -89,12 +89,12 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		YamlConfiguration c = new YamlConfiguration();
-		for (Turtle t : Turtle.turtles) {
-			if (t.isRunning()) {
-				t.stop();
-				if (t.getOwner() != null)
-					t.getOwner().sendMessage(ChatColor.RED + "Server reloading, stopping turtle.");
-			}
+		for (Turtle t : TurtleMgr.getTurtles()) {
+//			if (t.isRunning()) {
+//				t.stop();
+//				if (t.getOwner() != null)
+//					t.getOwner().sendMessage(ChatColor.RED + "Server reloading, stopping turtle.");
+//			}
 			String path = t.getName();
 			c.set(path + ".owner", t.getOwnerName());
 			c.set(path + ".location.x", t.getLocation().getBlockX());

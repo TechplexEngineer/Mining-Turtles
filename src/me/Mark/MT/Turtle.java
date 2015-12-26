@@ -18,7 +18,7 @@ public class Turtle {
 	private String name;
 	private Location loc;
 	private Material mat;
-	private Script script;
+//	private Script script;
 	private Inventory inv;
 	private String owner;
 	private int mined = 0, placed = 0;
@@ -30,23 +30,25 @@ public class Turtle {
 		this.mat = mat;
 		this.owner = owner;
 		inv = Bukkit.createInventory(null, 9 * 4,  name + " the turtle");
+		TurtleMgr.add(this);
 	}
 
-	public Turtle(String name, Material mat, Location loc, String owner, Script script) {
-		this(name, mat, loc, owner);
-		this.script = script;
-	}
-
+//	public Turtle(String name, Material mat, Location loc, String owner, Script script) {
+//		this(name, mat, loc, owner);
+//		this.script = script;
+//	}
+	
+//	Accessors
 	public Player getOwner() {
 		return Bukkit.getPlayer(owner);
 	}
-
-	public void setDir(BlockFace face) {
-		this.face = face;
-	}
-
+	
 	public String getOwnerName() {
 		return owner;
+	}
+	
+	public void setDir(BlockFace face) {
+		this.face = face;
 	}
 
 	public String getName() {
@@ -56,7 +58,17 @@ public class Turtle {
 	public Location getLocation() {
 		return loc;
 	}
+	
+	public Inventory getInventory() {
+		return inv;
+	}
+	
+	public Material getMaterial() {
+		return mat;
+	}
 
+//	actions
+	
 	public boolean breakBlock(Face face) {
 		if (getInventory().firstEmpty() == -1)
 			return false;
@@ -83,9 +95,7 @@ public class Turtle {
 	 * return Material.AIR; return type; }
 	 */
 
-	public Inventory getInventory() {
-		return inv;
-	}
+	
 
 	public boolean move(Face face) {
 		Location loc = this.loc.getBlock().getRelative(getBlockFace(face)).getLocation();
@@ -101,71 +111,69 @@ public class Turtle {
 		loc.getBlock().setType(mat);
 	}
 
-	public void setScript(Script script) {
-		this.script = script;
-	}
+//	public void setScript(Script script) {
+//		this.script = script;
+//	}
 
-	private int task;
-	private boolean running;
-	private int timees;
+//	private int task;
+//	private boolean running;
+//	private int timees;
 
-	public boolean isRunning() {
-		return running;
-	}
+//	public boolean isRunning() {
+//		return running;
+//	}
+//
+//	public boolean start(final int timess) {
+//		if (isRunning())
+//			return false;
+//		running = true;
+//		timees = timess * script.getLength();
+//		mined = 0;
+//		placed = 0;
+//		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.inst, new Runnable() {
+//			@Override
+//			public void run() {
+//				if (timees > 0) {
+//					Command cmd = script.getNextCommand();
+//					try {
+//						processCommand(cmd.getLabel(), cmd.getArgs());
+//					} catch (Exception e) {
+//						if (getOwner() != null)
+//							getOwner().sendMessage(ChatColor.RED + "There is an error in: \"" + cmd.getLabel() + " "
+//									+ cmd.getArgs()[0] + "...\"");
+//						else
+//							System.out.println(
+//									"There is an error in: \"" + cmd.getLabel() + " " + cmd.getArgs()[0] + "...\"");
+//					}
+//					timees--;
+//				} else {
+//					running = false;
+//					if (Bukkit.getPlayer(owner) != null)
+//						Bukkit.getPlayer(owner).sendMessage(name + " is done with the script! It mined " + mined
+//								+ " blocks and placed " + placed + " blocks.");
+//					Bukkit.getScheduler().cancelTask(task);
+//				}
+//			}
+//		}, 0, 20);
+//		return true;
+//	}
 
-	public boolean start(final int timess) {
-		if (isRunning())
-			return false;
-		running = true;
-		timees = timess * script.getLength();
-		mined = 0;
-		placed = 0;
-		task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.inst, new Runnable() {
-			@Override
-			public void run() {
-				if (timees > 0) {
-					Command cmd = script.getNextCommand();
-					try {
-						processCommand(cmd.getLabel(), cmd.getArgs());
-					} catch (Exception e) {
-						if (getOwner() != null)
-							getOwner().sendMessage(ChatColor.RED + "There is an error in: \"" + cmd.getLabel() + " "
-									+ cmd.getArgs()[0] + "...\"");
-						else
-							System.out.println(
-									"There is an error in: \"" + cmd.getLabel() + " " + cmd.getArgs()[0] + "...\"");
-					}
-					timees--;
-				} else {
-					running = false;
-					if (Bukkit.getPlayer(owner) != null)
-						Bukkit.getPlayer(owner).sendMessage(name + " is done with the script! It mined " + mined
-								+ " blocks and placed " + placed + " blocks.");
-					Bukkit.getScheduler().cancelTask(task);
-				}
-			}
-		}, 0, 20);
-		return true;
-	}
+	
 
-	public Material getMaterial() {
-		return mat;
-	}
-
-	public void stop() {
-		Bukkit.getScheduler().cancelTask(task);
-		running = false;
-	}
+//	public void stop() {
+//		Bukkit.getScheduler().cancelTask(task);
+//		running = false;
+//	}
 
 	public void destroy() {
-		if (isRunning())
-			stop();
+//		if (isRunning())
+//			stop();
 		for (ItemStack is : getInventory().getContents())
 			if (is != null)
 				loc.getWorld().dropItem(loc.add(.5, .5, .5), is);
 		inv.clear();
 		loc.getBlock().breakNaturally();
-		turtles.remove(this);
+		TurtleMgr.remove(this);
 	}
 
 	/*
@@ -282,23 +290,5 @@ public class Turtle {
 
 	// statics
 
-	public static List<Turtle> turtles = new ArrayList<Turtle>();
-
-	public static Turtle getTurtleAt(Block b) {
-		for (Turtle t : turtles)
-			if (t.getLocation().getBlockX() == b.getLocation().getBlockX()
-					&& t.getLocation().getBlockY() == b.getLocation().getBlockY()
-					&& t.getLocation().getBlockZ() == b.getLocation().getBlockZ())
-				return t;
-		// if (t.getLocation().getBlock().getLocation() == b.getLocation())
-		// return t;
-		return null;
-	}
-
-	public static Turtle getByName(String name) {
-		for (Turtle t : turtles)
-			if (t.getName().equalsIgnoreCase(name))
-				return t;
-		return null;
-	}
+	
 }

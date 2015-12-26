@@ -11,8 +11,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import me.Mark.MT.Script;
+//import me.Mark.MT.Script;
 import me.Mark.MT.Turtle;
+import me.Mark.MT.TurtleMgr;
 
 public class TurtleCMD implements CommandExecutor, TabCompleter {
 
@@ -28,7 +29,7 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 			return false;
 		}
 		String name = args[0];
-		Turtle t = Turtle.getByName(name);
+		Turtle t = TurtleMgr.getByName(name);
 		if (t == null) {
 			sender.sendMessage(ChatColor.RED + "Turtle " + name + " does not exist.");
 			return false;
@@ -39,16 +40,16 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 			return false;
 		}
 		if (args[1].equalsIgnoreCase("start")) {
-			if (t.isRunning()) {
-				sender.sendMessage(ChatColor.RED + "Turtle is already running a script. \"/t " + t.getName()
-						+ " stop\" to stop it.");
-				return false;
-			}
+//			if (t.isRunning()) {
+//				sender.sendMessage(ChatColor.RED + "Turtle is already running a script. \"/t " + t.getName()
+//						+ " stop\" to stop it.");
+//				return false;
+//			}
 			if (args.length != 5) {
 				sender.sendMessage(help);
 				return false;
 			}
-			t.setScript(Script.getFromConfig(args[3]));
+//			t.setScript(Script.getFromConfig(args[3]));
 			BlockFace bf;
 			try {
 				bf = BlockFace.valueOf(args[2].toUpperCase());
@@ -61,14 +62,14 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 				return false;
 			}
 			t.setDir(bf);
-			t.start(Integer.parseInt(args[4]));
+//			t.start(Integer.parseInt(args[4]));
 			sender.sendMessage(ChatColor.GREEN + "Started " + t.getName());
 		} else if (args[1].equalsIgnoreCase("stop")) {
 			if (owner != sender && !sender.hasPermission("turtles.stop")) {
 				sender.sendMessage(ChatColor.RED + "You don't own that turtle.");
 				return false;
 			}
-			t.stop();
+//			t.stop();
 			if (owner != null && t.getOwner() != sender)
 				owner.sendMessage(ChatColor.RED + ChatColor.BOLD.toString() + sender.getName() + " stopped "
 						+ t.getName() + "'s current task.");
@@ -92,7 +93,7 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 		if (args.length == 1) {
 			List<String> possibles = new ArrayList<String>();
 
-			for (Turtle t : Turtle.turtles) {
+			for (Turtle t : TurtleMgr.getTurtles()) {
 				if (sender != t.getOwner())
 					continue;
 				String name = t.getName();
@@ -119,13 +120,13 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 					pos.add(s);
 			return pos;
 		}
-		if (args.length == 4) {
-			List<String> pos = new ArrayList<String>();
-			for (String s : Script.getScripts())
-				if (s.toLowerCase().startsWith(args[3].toLowerCase()))
-					pos.add(s);
-			return pos;
-		}
+//		if (args.length == 4) {
+//			List<String> pos = new ArrayList<String>();
+//			for (String s : Script.getScripts())
+//				if (s.toLowerCase().startsWith(args[3].toLowerCase()))
+//					pos.add(s);
+//			return pos;
+//		}
 		return null;
 	}
 }
