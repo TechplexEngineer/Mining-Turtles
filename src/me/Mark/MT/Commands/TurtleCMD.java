@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,17 +13,29 @@ import org.bukkit.entity.Player;
 //import me.Mark.MT.Script;
 import me.Mark.MT.Turtle;
 import me.Mark.MT.TurtleMgr;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Material;
 
 public class TurtleCMD implements CommandExecutor, TabCompleter {
-
-	private static final String help = ChatColor.GREEN + "Turtle commands:\n"
-			+ " - /t <name> start <direction> <script> <times>\n" + " - /t <name> stop\n" + " - /t <name> destroy";
-	private static final String[] argss = new String[] { "start", "stop", "destroy" },
-			argssf = new String[] { "NORTH", "EAST", "SOUTH", "WEST" };
+	
+	private static final String[] DIR_STRINGS = {"NORTH", "SOUTH", "EAST", "WEST", "UP", "DOWN", "RIGHT", "LEFT", "FORWARD", "BACK"};
+	private static final String DIR_STRING = StringUtils.join(DIR_STRINGS, " ");
+	
+	private static final String[] CMDS_STRINGS = {"delete","move", "rotate", "mine", "place"};
+	private static final String CMD_STRING = StringUtils.join(CMDS_STRINGS," ");
+	
+	private static final List<String> mats = new ArrayList<>();
+	
+	static {
+		for (Material material : Material.values()) {
+			mats.add(material.name());
+		}
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
+		//0 1 2 3 4
+		//1 2 3 4 5
 		if (args[0].equalsIgnoreCase("list")) {
 			sender.sendMessage("There are "+TurtleMgr.getTurtles().size()+" turtles:");
 			for (Turtle tur : TurtleMgr.getTurtles()) {
@@ -32,7 +43,6 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 			}
 			return false;
 		}
-		
 		
 		String name = args[0];
 		Turtle t = TurtleMgr.getByName(name);
@@ -46,51 +56,63 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 			return false;
 		}
 		
-		if(args[1].equalsIgnoreCase("delete")) {
+		String act = "";
+		if (args.length >= 2) {
+			act = args[1];
+		}
+
+		String dir = "";
+		if (args.length >= 3) {
+			dir = args[2];
+		}
+		
+		String mat = "";
+		if (args.length >= 4) {
+			mat = args[3];
+		}
+		
+		if(act.equalsIgnoreCase("delete")) {
 			t.destroy();
 
 			return false;
 		}
 		
-		if(args[1].equalsIgnoreCase("move")) {
-			if (args.length > 2) {
-				t.move(args[2]);
+		if(act.equalsIgnoreCase("move")) {
+			if (args.length == 3) {
+				t.move(dir);
 			} else {
-				boolean ret = t.move(BlockFace.DOWN);
-				System.out.println(ret);
+				sender.sendMessage("/t <turtle> move "+DIR_STRING);
 			}
+			return false;
 		}
 		
-		if(args[1].equalsIgnoreCase("rotate")) {
-			if (args.length > 2) {
-				t.rotate(args[2]);
+		if(act.equalsIgnoreCase("rotate")) {
+			if (args.length == 3) {
+				t.rotate(dir);
 			} else {
-				boolean ret = t.rotate(BlockFace.NORTH);
-				System.out.println(ret);
+				sender.sendMessage("/t <turtle> rotate "+DIR_STRING);
 			}
+			return false;
 		}
 		
-		if(args[1].equalsIgnoreCase("mine")) {
-			if (args.length > 2) {
-				boolean ret = t.breakBlock(args[2]);
-				System.out.println(ret);
+		if(act.equalsIgnoreCase("mine")) {
+			if (args.length == 3) {
+				t.mine(dir);
 			} else {
-				boolean ret = t.breakBlock(BlockFace.NORTH);
-				System.out.println(ret);
+				sender.sendMessage("/t <turtle> mine "+DIR_STRING);
 			}
+			return false;
 		}
-//		System.out.println(StringUtils.join(args," | "));
-//		System.out.println();
-//		for(Turtle tur : TurtleMgr.getTurtles()) {
-//			System.out.println(tur.getName());
-//		}
-//		Turtle t = TurtleMgr.getByName("fred");
-//		if (t != null) {
-//			t.move(Face.BACK);
-//			t.breakBlock(Face.DOWN);
-//		} else {
-//			System.out.println("Turtle fred not found");
-//		}
+		
+		if(act.equalsIgnoreCase("place")) {
+			if (args.length == 4) {
+				t.place(dir, mat);
+			} else {
+				sender.sendMessage("/t <turtle> place "+DIR_STRING+" <Material>");
+			}
+			return false;
+		}
+		sender.sendMessage("/t <turtle> "+CMD_STRING+" ...");
 		
 		return false;
 
@@ -172,6 +194,8 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 		if (args.length == 1) {
 			List<String> possibles = new ArrayList<>();
 
+			if ("list".toLowerCase().startsWith(args[0].toLowerCase()))
+				possibles.add("list");
 			for (Turtle t : TurtleMgr.getTurtles()) {
 				if (sender != t.getOwner())
 					continue;
@@ -183,29 +207,38 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 				if (name.toLowerCase().startsWith(args[0].toLowerCase()))
 					possibles.add(name);
 			}
+			
 			return possibles;
 		}
-		if (args.length == 2) {
-			List<String> pos = new ArrayList<>();
-			for (String s : argss)
-				if (s.startsWith(args[1].toLowerCase()))
-					pos.add(s);
-			return pos;
+		if (!args[0].toLowerCase().equalsIgnoreCase("list")) {
+			if (args.length == 2) {
+				List<String> pos = new ArrayList<>();
+				for (String s : CMDS_STRINGS) {
+					if (s.startsWith(args[1].toLowerCase())) {
+						pos.add(s);
+					}
+				}
+				return pos;
+			}
+			if (args.length == 3) {
+				System.out.println("three");
+				List<String> pos = new ArrayList<>();
+				for (String s : DIR_STRINGS)
+					if (s.toLowerCase().startsWith(args[2].toLowerCase()))
+						pos.add(s);
+				return pos;
+			}
+			if (args.length == 4 && args[1].equalsIgnoreCase("place")) {
+
+				List<String> pos = new ArrayList<>();
+				for (String s : mats)
+					if (s.toLowerCase().startsWith(args[3].toLowerCase()))
+						pos.add(s);
+				System.out.println("four "+mats.size()+" "+pos.size()+" "+args[3]);
+				return pos;
+			}
 		}
-		if (args.length == 3) {
-			List<String> pos = new ArrayList<>();
-			for (String s : argssf)
-				if (s.toLowerCase().startsWith(args[2].toLowerCase()))
-					pos.add(s);
-			return pos;
-		}
-//		if (args.length == 4) {
-//			List<String> pos = new ArrayList<String>();
-//			for (String s : Script.getScripts())
-//				if (s.toLowerCase().startsWith(args[3].toLowerCase()))
-//					pos.add(s);
-//			return pos;
-//		}
+		
 		return null;
 	}
 }

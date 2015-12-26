@@ -3,6 +3,7 @@ package me.Mark.MT;
 
 import me.Mark.MT.Utils.KDebug;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,6 +26,7 @@ public class Turtle {
 	private Inventory inv;
 	private String owner;
 	private int mined = 0, placed = 0;
+	private boolean obeyCreative = true;
 
 	//==========================================================================
     // Constructors & Destructors
@@ -41,11 +43,6 @@ public class Turtle {
 		this.owner = owner;
 		inv = Bukkit.createInventory(null, 9 * 4,  name + " the turtle");
 	}
-
-//	public Turtle(String name, Material mat, Location loc, String owner, Script script) {
-//		this(name, mat, loc, owner);
-//		this.script = script;
-//	}
 	
 	/**
 	 * Should be called when removing turtle from world
@@ -147,17 +144,32 @@ public class Turtle {
 		this.name = name;
 	}
 
+	/**
+	 * Change the turtle's owner
+	 * @param owner 
+	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 
-	
+	/**
+	 * When true the turtle does not need to have the item in its inventory to place it
+	 * @param obeyCreative 
+	 */
+	public void setObeyCreative(boolean obeyCreative) {
+		this.obeyCreative = obeyCreative;
+	}
 	
 	//==========================================================================
     // Utils
     //==========================================================================
 	
-	public BlockFace str2blockFace(String face) {
+	/**
+	 * Resolve string {NORTH, EAST, SOUTH, WEST, Up, DOWN, LEFT, RIGHT} to BlockFace
+	 * @param face
+	 * @return BlockFace
+	 */
+	public BlockFace str2BlockFace(String face) {
 		BlockFace out = null;
 		if (face.equalsIgnoreCase("NORTH")) {
 			out = BlockFace.NORTH;
@@ -201,8 +213,12 @@ public class Turtle {
     // Actions
     //==========================================================================
 
-	
-	public boolean breakBlock(BlockFace face) {
+	/**
+	 * Break a block in the direction provided, get the dropped item and store in inventory
+	 * @param face the direction to mine
+	 * @return true on successful mine, false otherwise
+	 */
+	public boolean mine(BlockFace face) {
 		if (getInventory().firstEmpty() == -1)
 			return false;
 		Block b = loc.getBlock().getRelative(face);
@@ -220,13 +236,69 @@ public class Turtle {
 		return true;
 	}
 	
-	public boolean breakBlock(String face) {
-		BlockFace out = str2blockFace(face);
+	/**
+	 * Break a block in the direction provided, get the dropped item and store in inventory
+	 * Automatically resolve strings to the proper BlockFace
+	 * @param face
+	 * @return true on successful mine, false otherwise
+	 */
+	public boolean mine(String face) {
+		BlockFace out = str2BlockFace(face);
 		if (out == null) {
 			return false;
 		} else {
-			return breakBlock(out);
+			return mine(out);
 		}
+	}
+	
+	/**
+	 * Place a block. When in creative mode and obeyCreative==true inventory is not used
+	 * @param face direction to place the block
+	 * @param mat material to place
+	 * @return true on successful place, false otherwise
+	 */
+	public boolean place(BlockFace face, Material mat) {
+		if (face == null) {
+			System.err.println("Error: while placing. BlockFace is null.");
+			return false;
+		}
+		if (mat == null) {
+			System.err.println("Error: while placing. Material is null.");
+			return false;
+		}
+		Block b = this.loc.getBlock().getRelative(face);
+		// only place block in empty slot
+		if (b.getType() != Material.AIR)
+			return false;
+		if (obeyCreative && getOwner().getGameMode() == GameMode.CREATIVE) {
+			b.setType(mat);
+			placed++;
+			return true;
+		}
+		if (getInventory().containsAtLeast(new ItemStack(mat), 1)) {
+			for (int i = 0; i < getInventory().getSize(); i++) {
+				ItemStack is = getInventory().getItem(i);
+				if (is == null)
+					continue;
+				if (is.getType() == mat) {
+					int am = is.getAmount() - 1;
+					is.setAmount(am);
+					if (am <= 0)
+						getInventory().setItem(i, null);
+					break;
+				}
+			}
+			b.setType(mat);
+			placed++;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean place(String face, String mat) {
+		BlockFace bf = str2BlockFace(face);
+		Material mt = Material.getMaterial(mat.toUpperCase());
+		return place(bf, mt);
 	}
 
 	/**
@@ -262,7 +334,6 @@ public class Turtle {
 	 * @return success 
 	 */
 	public boolean move(BlockFace face) {
-		
 		Location l = this.loc.getBlock().getRelative(face).getLocation();
 		if (l.getBlock().getType() != Material.AIR) {
 			System.out.println("Can't move, "+l.getBlock().getType()+" block in the way.");
@@ -274,12 +345,12 @@ public class Turtle {
 	
 	/**
 	 * Move the turtle in the given absolute direction
-	 * Automatically resolve strings {NORTH, EAST, SOUTH, WEST} to the proper BlockFace
+	 * Automatically resolve strings to the proper BlockFace
 	 * @param face
 	 * @return success
 	 */
 	public boolean move(String face) {
-		BlockFace out = str2blockFace(face);
+		BlockFace out = str2BlockFace(face);
 		if (out == null) {
 			return false;
 		} else {
@@ -298,12 +369,12 @@ public class Turtle {
 	
 	/**
 	 * Turn the turtle
-	 * Automatically resolve strings {NORTH, EAST, SOUTH, WEST} to the proper BlockFace
+	 * Automatically resolve strings to the proper BlockFace
 	 * @param dir direction to head
 	 * @return success
 	 */
 	public boolean rotate(String dir) {
-		BlockFace out = str2blockFace(dir);
+		BlockFace out = str2BlockFace(dir);
 		if (out == null) {
 			return false;
 		} else {
@@ -457,29 +528,7 @@ public class Turtle {
 		return this.loc.getBlock().getRelative(getBlockFace(face)).getType() == mat;
 	}
 
-	private boolean place(BlockFace face, Material mat) {
-		Block b = this.loc.getBlock().getRelative(face);
-		if (b.getType() != Material.AIR)
-			return false;
-		if (getInventory().containsAtLeast(new ItemStack(mat), 1)) {
-			for (int i = 0; i < getInventory().getSize(); i++) {
-				ItemStack is = getInventory().getItem(i);
-				if (is == null)
-					continue;
-				if (is.getType() == mat) {
-					int am = is.getAmount() - 1;
-					is.setAmount(am);
-					if (am <= 0)
-						getInventory().setItem(i, null);
-					break;
-				}
-			}
-			b.setType(mat);
-			placed++;
-			return true;
-		}
-		return false;
-	}
+
 
 	// statics
 	
