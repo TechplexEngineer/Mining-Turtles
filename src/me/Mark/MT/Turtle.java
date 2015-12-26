@@ -21,7 +21,7 @@ public class Turtle {
 	private Inventory inv;
 	private String owner;
 	private int mined = 0, placed = 0;
-	private BlockFace face;
+
 
 	public Turtle(String name, Material mat, Location loc, String owner) {
 		this.name = name;
@@ -38,32 +38,72 @@ public class Turtle {
 //	}
 	
 //	Accessors
+	/**
+	 * Get the owner as a player object
+	 * @return Player
+	 */
 	public Player getOwner() {
 		return Bukkit.getPlayer(owner);
 	}
 	
+	/**
+	 * Get the name of the owner
+	 * @return owner's name
+	 */
 	public String getOwnerName() {
 		return owner;
 	}
-	
-	public void setDir(BlockFace face) {
-		this.face = face;
-	}
 
+	/**
+	 * Get the player specified name of the turtle
+	 * @return the turtle's name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get the turtle's location
+	 * @return Location
+	 */
 	public Location getLocation() {
 		return loc;
 	}
 	
+	/**
+	 * Get the turtle's inventory
+	 * @return Inventory
+	 */
 	public Inventory getInventory() {
 		return inv;
 	}
 	
+	/**
+	 * Get the type of material the turtle is made from
+	 * @return Material
+	 */
 	public Material getMaterial() {
 		return mat;
+	}
+	
+	/**
+	 * Get the direction the turtle is facing
+	 * @return Cardinal direction BlockFace.{NORTH, EAST, SOUTH, WEST}
+	 */
+	public BlockFace getDir() {
+		
+		try {
+			//@todo what happens if the block is not directional?
+			//@note throws an exception which we catch. Should be able to use reflection...
+			Block b = this.loc.getBlock();
+			BlockState state = b.getState();
+			Directional d = ((Directional) state.getData());
+			return d.getFacing();
+
+		} catch (ClassCastException e) {
+			System.out.println("Is not Instance");
+			return null;
+		}
 	}
 
 //	actions
@@ -72,9 +112,13 @@ public class Turtle {
 		if (getInventory().firstEmpty() == -1)
 			return false;
 		Block b = loc.getBlock().getRelative(getBlockFace(face));
-		if (b.getType() == Material.BEDROCK || b.getType() == Material.CHEST || b.getType() == Material.AIR
-				|| b.getType() == Material.MOB_SPAWNER || b.getType() == Material.PORTAL
-				|| b.getType() == Material.ENDER_PORTAL_FRAME || b.getType() == Material.ENDER_PORTAL)
+		if (b.getType() == Material.BEDROCK 
+				|| b.getType() == Material.CHEST 
+				|| b.getType() == Material.AIR
+				|| b.getType() == Material.MOB_SPAWNER 
+				|| b.getType() == Material.PORTAL
+				|| b.getType() == Material.ENDER_PORTAL_FRAME 
+				|| b.getType() == Material.ENDER_PORTAL)
 			return false;
 		for (ItemStack is : b.getDrops())
 			getInventory().addItem(is);
@@ -94,23 +138,33 @@ public class Turtle {
 	 * return Material.AIR; return type; }
 	 */
 
-	public void setLocation(Location loc) {
+	/**
+	 * Move the turtle to the newloc
+	 * Does not check if there is a block in the way
+	 * @param newloc new location to move to 
+	 * @param facing direction to face
+	 * @return success
+	 */
+	public boolean setLocation(Location newloc, BlockFace facing) {
 		this.loc.getBlock().setType(Material.AIR);
-		this.loc = loc;
-		loc.getBlock().setType(mat);
+		this.loc = newloc;
+		Block b = loc.getBlock();
+		b.setType(mat);
+		try {
+			//@todo what happens if the block is not directional?
+			//@note throws an exception which we catch. Should be able to use reflection...
+			BlockState state = b.getState();
+			Directional d = ((Directional)state.getData());
+			d.setFacingDirection(facing);
+			state.update();
+			System.out.println("Is Instance");
+			return true;
+		} catch (ClassCastException e) {
+			System.err.println("Is not Instance");
+		}
+		return false;
 	}
 
-	public boolean move(BlockFace face) {
-		
-		Location loc = this.loc.getBlock().getRelative(face).getLocation();
-		if (loc.getBlock().getType() != Material.AIR) {
-			System.out.println("Can't move, "+loc.getBlock().getType()+" block in the way.");
-			return false;
-		}
-		setLocation(loc);
-		return true;
-	}
-	
 	public BlockFace str2blockFace(String face) {
 		BlockFace out = null;
 		if (face.equalsIgnoreCase("NORTH")) {
@@ -134,6 +188,28 @@ public class Turtle {
 		return out;
 	}
 	
+	/**
+	 * Move the turtle in the given absolute direction
+	 * @param face
+	 * @return success 
+	 */
+	public boolean move(BlockFace face) {
+		
+		Location l = this.loc.getBlock().getRelative(face).getLocation();
+		if (l.getBlock().getType() != Material.AIR) {
+			System.out.println("Can't move, "+l.getBlock().getType()+" block in the way.");
+			return false;
+		}
+		setLocation(l, getDir());
+		return true;
+	}
+	
+	/**
+	 * Move the turtle in the given absolute direction
+	 * Automatically resolve strings {NORTH, EAST, SOUTH, WEST} to the proper BlockFace
+	 * @param face
+	 * @return success
+	 */
 	public boolean move(String face) {
 		BlockFace out = str2blockFace(face);
 		if (out == null) {
@@ -143,30 +219,23 @@ public class Turtle {
 		}
 	}
 	
-
-	
-	
+	/**
+	 * Turn the turtle
+	 * @param dir direction to head
+	 * @return success
+	 */
 	public boolean rotate(BlockFace dir) {
 		
-		Block b = this.loc.getBlock();
-
-		
-		BlockState state = b.getState();
-		try {
-			//@todo what happens if the block is not directional?
-			//@note throws an exception which we catch. SHould be able to use reflection...
-			Directional d = ((Directional)state.getData());
-			d.setFacingDirection(dir);
-			state.update();
-			System.out.println("Is Instance");
-			return true;
-		} catch (ClassCastException e) {
-			System.out.println("Is not Instance");
-		return false;
-		}
+		return setLocation(this.loc, dir);
 
 	}
 	
+	/**
+	 * Turn the turtle
+	 * Automatically resolve strings {NORTH, EAST, SOUTH, WEST} to the proper BlockFace
+	 * @param dir direction to head
+	 * @return success
+	 */
 	public boolean rotate(String dir) {
 		BlockFace out = str2blockFace(dir);
 		if (out == null) {
@@ -175,6 +244,13 @@ public class Turtle {
 			return rotate(out);
 		}
 	}
+	
+	
+//	public BlockFace a(String dir) {
+//		if(dir.equalsIgnoreCase("RIGHT")) {
+//			
+//		}
+//	}
 
 //	public void setScript(Script script) {
 //		this.script = script;
@@ -250,6 +326,7 @@ public class Turtle {
 	 */
 
 	public BlockFace getBlockFace(Face fface) {
+		BlockFace face = this.getDir();
 		if (fface.getDir() == 4)
 			return BlockFace.UP;
 		if (fface.getDir() == 5)
