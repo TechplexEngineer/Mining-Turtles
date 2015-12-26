@@ -16,14 +16,14 @@ import org.bukkit.Location;
  * @author techplex
  */
 public class TurtleMgr {
-	private static List<Turtle> turtles = new ArrayList<Turtle>();
+	private static final List<Turtle> TRUTLES = new ArrayList<>();
 	
 	/**
 	 * Get a list of turtles
 	 * @return a collection of turtles
 	 */
 	public static List<Turtle> getTurtles() {
-		return turtles;
+		return TRUTLES;
 	}
 	
 	/**
@@ -33,7 +33,7 @@ public class TurtleMgr {
 	 */
 	public static boolean add(Turtle t) {
 		if (TurtleMgr.getByName(t.getName()) == null) {
-			turtles.add(t);
+			TRUTLES.add(t);
 			return true;
 		}
 		return false;
@@ -42,10 +42,10 @@ public class TurtleMgr {
 	
 	/**
 	 * Remove a turtle from the list
-	 * @param t turtle to remove
+	 * @param name turtle to remove
 	 */
 	public static void remove(String name) {
-		turtles.remove(TurtleMgr.getByName(name));
+		TRUTLES.remove(TurtleMgr.getByName(name));
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class TurtleMgr {
 	 * @return the turtle if found, null otherwise
 	 */
 	public static Turtle getByLoc(Location l) {
-		for (Turtle t : turtles)
+		for (Turtle t : TRUTLES)
 			if (t.getLocation().equals(l)) {
 				return t;
 			}
@@ -67,7 +67,7 @@ public class TurtleMgr {
 	 * @return the turtle if found, null otherwise
 	 */
 	public static Turtle getByName(String name) {
-		for (Turtle t : turtles)
+		for (Turtle t : TRUTLES)
 			if (t.getName().equals(name)) {
 				return t;
 			}
