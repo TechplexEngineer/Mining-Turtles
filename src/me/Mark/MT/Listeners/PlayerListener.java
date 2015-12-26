@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import me.Mark.MT.Turtle;
 import me.Mark.MT.TurtleMgr;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
@@ -58,7 +59,7 @@ public class PlayerListener implements Listener {
 		if (t == null) {
 			Player player = event.getPlayer();
 			if (player.getItemInHand().getType() == Main.turtleWand) {
-				createTurtle(p, blk);
+				createTurtle(p, blk.getLocation());
 				event.setCancelled(true);
 			}
 			return;
@@ -73,10 +74,10 @@ public class PlayerListener implements Listener {
 	
 	/**
 	 * Ask the player for the name of a turtle and create one if name not exists
-	 * @param player
-	 * @param blk
+	 * @param player player who owns the turtle
+	 * @param l Location to create the turtle
 	 */
-	public void createTurtle(Player player, final Block blk) {
+	public void createTurtle(Player player, final Location l) {
 		//get the name of the turtle from the user
 		SignGUI gui = new SignGUI(plugin);
 		gui.open(player, new String[]{"", "Enter a turtle", "name on the first", "line of this sign."}, new SignGUI.SignGUIListener() {
@@ -90,8 +91,7 @@ public class PlayerListener implements Listener {
 				System.out.println("Creating new turtle named:"+name);
 				Turtle t = TurtleMgr.getByName(name);
 				if (t == null) {
-					t = new Turtle(name, Main.turtleMaterial, blk.getLocation(), player.getName());
-					TurtleMgr.add(t);
+					t = TurtleMgr.getNewTurtle(name, Main.turtleMaterial, l, player.getName());
 					player.sendMessage(ChatColor.GREEN + "Created turtle: " + t.getName());
 				} else {
 					player.sendMessage(ChatColor.RED + "A turtle with that name already exists.");
