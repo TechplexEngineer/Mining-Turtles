@@ -1,6 +1,7 @@
 package me.Mark.MT;
 
 
+import me.Mark.MT.Utils.KDebug;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +15,9 @@ import org.bukkit.material.Directional;
 
 public class Turtle {
 
+	//==========================================================================
+    // Properties
+    //==========================================================================
 	private String name;
 	private Location loc;
 	private Material mat;
@@ -22,14 +26,20 @@ public class Turtle {
 	private String owner;
 	private int mined = 0, placed = 0;
 
+	//==========================================================================
+    // Constructors & Destructors
+    //==========================================================================
 
 	public Turtle(String name, Material mat, Location loc, String owner) {
+		
+		if (!KDebug.isCalledFrom("TurtleMgr")) {
+			System.err.println("Invalid Invocation. Turtles can only be created from the TurtleMgr");
+		}
 		this.name = name;
 		this.loc = loc;
 		this.mat = mat;
 		this.owner = owner;
 		inv = Bukkit.createInventory(null, 9 * 4,  name + " the turtle");
-		TurtleMgr.add(this);
 	}
 
 //	public Turtle(String name, Material mat, Location loc, String owner, Script script) {
@@ -37,7 +47,26 @@ public class Turtle {
 //		this.script = script;
 //	}
 	
-//	Accessors
+	/**
+	 * Should be called when removing turtle from world
+	 */
+	public void destroy() {
+//		if (isRunning())
+//			stop();
+		for (ItemStack is : getInventory().getContents())
+			if (is != null)
+				loc.getWorld().dropItem(loc.add(.5, .5, .5), is);
+		inv.clear();
+		loc.getBlock().breakNaturally();
+		if (!KDebug.isCalledFrom("TurtleMgr")) {
+			TurtleMgr.remove(this.getName());
+		}
+		
+	}
+	
+	//==========================================================================
+    // Getters
+    //==========================================================================
 	/**
 	 * Get the owner as a player object
 	 * @return Player
@@ -105,75 +134,29 @@ public class Turtle {
 			return null;
 		}
 	}
-
-//	actions
 	
-	public boolean breakBlock(BlockFace face) {
-		if (getInventory().firstEmpty() == -1)
-			return false;
-		Block b = loc.getBlock().getRelative(face);
-		if (b.getType() == Material.BEDROCK 
-				|| b.getType() == Material.CHEST 
-				|| b.getType() == Material.AIR
-				|| b.getType() == Material.MOB_SPAWNER 
-				|| b.getType() == Material.PORTAL
-				|| b.getType() == Material.ENDER_PORTAL_FRAME 
-				|| b.getType() == Material.ENDER_PORTAL)
-			return false;
-		for (ItemStack is : b.getDrops())
-			getInventory().addItem(is);
-		b.setType(Material.AIR);
-		return true;
-	}
-	
-	public boolean breakBlock(String face) {
-		BlockFace out = str2blockFace(face);
-		if (out == null) {
-			return false;
-		} else {
-			return breakBlock(out);
-		}
-	}
-
-	/*
-	 * private Material getBrokenType(Material type) { if (type ==
-	 * Material.GRASS) return Material.DIRT; if (type == Material.COAL_ORE)
-	 * return Material.COAL; if (type == Material.STONE) return
-	 * Material.COBBLESTONE; if (type == Material.DEAD_BUSH) return
-	 * Material.AIR; if (type == Material.LONG_GRASS) return Material.AIR; if
-	 * (type == Material.LEAVES || type == Material.LEAVES_2) return
-	 * Material.AIR; if (type == Material.GLASS) return Material.AIR; if (type
-	 * == Material.THIN_GLASS) return Material.AIR; if (type == Material.ICE)
-	 * return Material.AIR; return type; }
-	 */
+	//==========================================================================
+    // Setters
+    //==========================================================================
 
 	/**
-	 * Move the turtle to the newloc
-	 * Does not check if there is a block in the way
-	 * @param newloc new location to move to 
-	 * @param facing direction to face
-	 * @return success
+	 * Change the turtle's name
+	 * @param name 
 	 */
-	public boolean setLocation(Location newloc, BlockFace facing) {
-		this.loc.getBlock().setType(Material.AIR);
-		this.loc = newloc;
-		Block b = loc.getBlock();
-		b.setType(mat);
-		try {
-			//@todo what happens if the block is not directional?
-			//@note throws an exception which we catch. Should be able to use reflection...
-			BlockState state = b.getState();
-			Directional d = ((Directional)state.getData());
-			d.setFacingDirection(facing);
-			state.update();
-			System.out.println("Is Instance");
-			return true;
-		} catch (ClassCastException e) {
-			System.err.println("Is not Instance");
-		}
-		return false;
+	public void setName(String name) {
+		this.name = name;
 	}
 
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	
+	
+	//==========================================================================
+    // Utils
+    //==========================================================================
+	
 	public BlockFace str2blockFace(String face) {
 		BlockFace out = null;
 		if (face.equalsIgnoreCase("NORTH")) {
@@ -214,6 +197,65 @@ public class Turtle {
 		return out;
 	}
 	
+	//==========================================================================
+    // Actions
+    //==========================================================================
+
+	
+	public boolean breakBlock(BlockFace face) {
+		if (getInventory().firstEmpty() == -1)
+			return false;
+		Block b = loc.getBlock().getRelative(face);
+		if (b.getType() == Material.BEDROCK 
+				|| b.getType() == Material.CHEST 
+				|| b.getType() == Material.AIR
+				|| b.getType() == Material.MOB_SPAWNER 
+				|| b.getType() == Material.PORTAL
+				|| b.getType() == Material.ENDER_PORTAL_FRAME 
+				|| b.getType() == Material.ENDER_PORTAL)
+			return false;
+		for (ItemStack is : b.getDrops())
+			getInventory().addItem(is);
+		b.setType(Material.AIR);
+		return true;
+	}
+	
+	public boolean breakBlock(String face) {
+		BlockFace out = str2blockFace(face);
+		if (out == null) {
+			return false;
+		} else {
+			return breakBlock(out);
+		}
+	}
+
+	/**
+	 * Move the turtle to the newloc
+	 * Does not check if there is a block in the way
+	 * @param newloc new location to move to 
+	 * @param facing direction to face
+	 * @return success
+	 */
+	public boolean setLocation(Location newloc, BlockFace facing) {
+		this.loc.getBlock().setType(Material.AIR);
+		this.loc = newloc;
+		Block b = loc.getBlock();
+		b.setType(mat);
+		try {
+			//@todo what happens if the block is not directional?
+			//@note throws an exception which we catch. Should be able to use reflection...
+			BlockState state = b.getState();
+			Directional d = ((Directional)state.getData());
+			d.setFacingDirection(facing);
+			state.update();
+			System.out.println("Is Instance");
+			return true;
+		} catch (ClassCastException e) {
+			System.err.println("Is not Instance");
+		}
+		return false;
+	}
+
 	/**
 	 * Move the turtle in the given absolute direction
 	 * @param face
@@ -251,9 +293,7 @@ public class Turtle {
 	 * @return success
 	 */
 	public boolean rotate(BlockFace dir) {
-		
 		return setLocation(this.loc, dir);
-
 	}
 	
 	/**
@@ -271,12 +311,6 @@ public class Turtle {
 		}
 	}
 	
-	
-//	public BlockFace a(String dir) {
-//		if(dir.equalsIgnoreCase("RIGHT")) {
-//			
-//		}
-//	}
 
 //	public void setScript(Script script) {
 //		this.script = script;
@@ -332,16 +366,7 @@ public class Turtle {
 //		running = false;
 //	}
 
-	public void destroy() {
-//		if (isRunning())
-//			stop();
-		for (ItemStack is : getInventory().getContents())
-			if (is != null)
-				loc.getWorld().dropItem(loc.add(.5, .5, .5), is);
-		inv.clear();
-		loc.getBlock().breakNaturally();
-		TurtleMgr.remove(this.getName());
-	}
+	
 
 	/*
 	 * public BlockFace getBlockFace(Face face) { int dirr = dir +
@@ -432,8 +457,8 @@ public class Turtle {
 		return this.loc.getBlock().getRelative(getBlockFace(face)).getType() == mat;
 	}
 
-	private boolean place(Face face, Material mat) {
-		Block b = this.loc.getBlock().getRelative(getBlockFace(face));
+	private boolean place(BlockFace face, Material mat) {
+		Block b = this.loc.getBlock().getRelative(face);
 		if (b.getType() != Material.AIR)
 			return false;
 		if (getInventory().containsAtLeast(new ItemStack(mat), 1)) {
@@ -457,6 +482,7 @@ public class Turtle {
 	}
 
 	// statics
+	
 
 	
 }

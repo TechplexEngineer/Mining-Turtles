@@ -58,14 +58,13 @@ public class Main extends JavaPlugin {
 		}
 		for (String s : c.getKeys(false)) {
 			@SuppressWarnings("deprecation")
-			Turtle t = new Turtle(s,
+			Turtle t = TurtleMgr.getNewTurtle(s,
 					Material.getMaterial(c.getInt(s + ".material")),
 					new Location(Bukkit.getWorld(c.getString(s + ".location.world")), c.getInt(s + ".location.x"), c.getInt(s + ".location.y"), c.getInt(s + ".location.z")),
 					c.getString(s + ".owner"));
 			@SuppressWarnings("unchecked")
 			ItemStack[] content = ((List<ItemStack>) c.get(s + ".inv")).toArray(new ItemStack[0]);
 			t.getInventory().setContents(content);
-			TurtleMgr.add(t);
 		}
 	}
 

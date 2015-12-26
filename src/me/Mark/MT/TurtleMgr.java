@@ -6,9 +6,14 @@
 package me.Mark.MT;
 
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.Location;
+import org.bukkit.Material;
 
 
 /**
@@ -17,6 +22,13 @@ import org.bukkit.Location;
  */
 public class TurtleMgr {
 	private static final List<Turtle> TRUTLES = new ArrayList<>();
+	
+	public static Turtle getNewTurtle(String name, Material mat, Location loc, String owner) 
+	{
+		Turtle t = new Turtle(name, mat, loc, owner);
+		add(t);
+		return t;
+	}
 	
 	/**
 	 * Get a list of turtles
@@ -31,7 +43,7 @@ public class TurtleMgr {
 	 * @param t turtle to add
 	 * @return true on success, false otherwise
 	 */
-	public static boolean add(Turtle t) {
+	private static boolean add(Turtle t) {
 		if (TurtleMgr.getByName(t.getName()) == null) {
 			TRUTLES.add(t);
 			return true;
@@ -45,7 +57,9 @@ public class TurtleMgr {
 	 * @param name turtle to remove
 	 */
 	public static void remove(String name) {
-		TRUTLES.remove(TurtleMgr.getByName(name));
+		Turtle t = TurtleMgr.getByName(name);
+		t.destroy();
+		TRUTLES.remove(t);
 	}
 
 	/**

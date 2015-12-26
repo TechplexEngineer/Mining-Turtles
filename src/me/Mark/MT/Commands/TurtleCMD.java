@@ -170,7 +170,7 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 1) {
-			List<String> possibles = new ArrayList<String>();
+			List<String> possibles = new ArrayList<>();
 
 			for (Turtle t : TurtleMgr.getTurtles()) {
 				if (sender != t.getOwner())
@@ -186,14 +186,14 @@ public class TurtleCMD implements CommandExecutor, TabCompleter {
 			return possibles;
 		}
 		if (args.length == 2) {
-			List<String> pos = new ArrayList<String>();
+			List<String> pos = new ArrayList<>();
 			for (String s : argss)
 				if (s.startsWith(args[1].toLowerCase()))
 					pos.add(s);
 			return pos;
 		}
 		if (args.length == 3) {
-			List<String> pos = new ArrayList<String>();
+			List<String> pos = new ArrayList<>();
 			for (String s : argssf)
 				if (s.toLowerCase().startsWith(args[2].toLowerCase()))
 					pos.add(s);
