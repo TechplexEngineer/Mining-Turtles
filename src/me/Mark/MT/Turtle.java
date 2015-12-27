@@ -21,9 +21,9 @@ public class Turtle {
     //==========================================================================
 	private String name;
 	private Location loc;
-	private Material mat;
+	private final Material mat;
 //	private Script script;
-	private Inventory inv;
+	private final Inventory inv;
 	private String owner;
 	private int mined = 0, placed = 0;
 	private boolean obeyCreative = true;
@@ -158,6 +158,16 @@ public class Turtle {
 	 */
 	public void setObeyCreative(boolean obeyCreative) {
 		this.obeyCreative = obeyCreative;
+	}
+	
+	/**
+	 * Get the material type of the item in the inventory slot
+	 * @param slot the slot number to check
+	 * @return item type, else return Material.AIR
+	 */
+	private Material getType(int slot) {
+		ItemStack is = getInventory().getItem(slot);
+		return is == null ? Material.AIR : is.getType();
 	}
 	
 	//==========================================================================
@@ -382,6 +392,16 @@ public class Turtle {
 		}
 	}
 	
+	/**
+	 * Check the type of a block immediately adjacent to the turtle
+	 * @param face the direction to check
+	 * @param mat the material to look for
+	 * @return true if the block in face direction is the same material as mat
+	 */
+	private boolean checkType(BlockFace face, Material mat) {
+		return this.loc.getBlock().getRelative(face).getType() == mat;
+	}
+	
 
 //	public void setScript(Script script) {
 //		this.script = script;
@@ -438,25 +458,9 @@ public class Turtle {
 //	}
 
 
-	/**
-	 * Get the material type of the item in the inventory slot
-	 * @param slot the slot number to check
-	 * @return item type, else return Material.AIR
-	 */
-	private Material getType(int slot) {
-		ItemStack is = getInventory().getItem(slot);
-		return is == null ? Material.AIR : is.getType();
-	}
+	
 
-	/**
-	 * Check the type of a block immediately adjacent to the turtle
-	 * @param face the direction to check
-	 * @param mat the material to look for
-	 * @return true if the block in face direction is the same material as mat
-	 */
-	private boolean checkType(BlockFace face, Material mat) {
-		return this.loc.getBlock().getRelative(face).getType() == mat;
-	}
+	
 
 //	public void processCommand(String label, String[] args) {
 //		if (label.equalsIgnoreCase("move"))
