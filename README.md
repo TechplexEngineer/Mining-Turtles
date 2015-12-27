@@ -1,3 +1,5 @@
+# Deprecated see [MCTurtles](https://github.com/TechplexEngineer/MCTurtles)
+
 # Mining-Turtles
 Mining Turtles Like in Tekkit for Vanilla Minecraft
 
