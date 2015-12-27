@@ -25,15 +25,10 @@ import me.Mark.MT.Listeners.PlayerListener;
 
 public class Main extends JavaPlugin {
 
-	/**
-	 * TODO check block data in PLACE
-	 * TODO play break particles
-	 * TODO /reloadscripts Realoading
-	 */
 	public static Main inst;
 	public FileConfiguration config;
-	public static final Material turtleMaterial = Material.DISPENSER; //@note use a directioal block
-	public static final Material turtleWand = Material.BLAZE_ROD;
+	public static final Material TURTLE_MATERIAL = Material.DISPENSER; //@note use a directioal block
+	public static final Material TURTLEWAND_MATERIAL = Material.BLAZE_ROD;
 	
 	//@note continued: use one of: Banner, Bed, Button, Chest, CocoaPlant, Diode, DirectionalContainer, Dispenser, Door, EnderChest, Furnace, FurnaceAndDispenser, Gate, Ladder, Lever, PistonBaseMaterial, PistonExtensionMaterial, Pumpkin, RedstoneTorch, Sign, SimpleAttachableMaterialData, Skull, Stairs, Torch, TrapDoor, TripwireHook
 
@@ -42,7 +37,7 @@ public class Main extends JavaPlugin {
 		inst = this;
 		configs();
 		PluginManager pm = Bukkit.getPluginManager();
-		pm.registerEvents(new PlayerListener(this), this);
+		pm.registerEvents(new PlayerListener(), this);
 
 		getCommand("turtle").setExecutor(new TurtleCMD());
 		getCommand("reloadscripts").setExecutor(new ReloadCMD());
@@ -75,13 +70,13 @@ public class Main extends JavaPlugin {
 			return false;
 		}
 		if (label.equalsIgnoreCase("turtlerod")) {
-			ItemStack rod = new ItemStack(turtleWand);
+			ItemStack rod = new ItemStack(TURTLEWAND_MATERIAL);
 			ItemMeta im = rod.getItemMeta();
 			im.setDisplayName("Create a Turtle");
 			rod.setItemMeta(im);
 			((Player) sender).getInventory().addItem(rod);
-			((Player) sender).getInventory().addItem(new ItemStack(turtleMaterial));
-			sender.sendMessage(ChatColor.GREEN + "Click with this rod on a "+turtleMaterial.toString()+" to create a turtle.");
+			((Player) sender).getInventory().addItem(new ItemStack(TURTLE_MATERIAL));
+			sender.sendMessage(ChatColor.GREEN + "Click with this rod on a "+TURTLE_MATERIAL.toString()+" to create a turtle.");
 		}
 		return false;
 	}

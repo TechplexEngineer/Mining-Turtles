@@ -15,14 +15,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import me.Mark.MT.Turtle;
 import me.Mark.MT.TurtleMgr;
 import org.bukkit.Location;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class PlayerListener implements Listener {
-	JavaPlugin plugin;
 	
-	public PlayerListener(JavaPlugin plugin) {
-		this.plugin = plugin;
-	}
 
 	/**
 	 * Handle the removal of turtles when blocks are broken
@@ -30,7 +25,7 @@ public class PlayerListener implements Listener {
 	 */
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {
-		if (event.getBlock().getType() != Main.turtleMaterial)
+		if (event.getBlock().getType() != Main.TURTLE_MATERIAL)
 			return;
 		Turtle t = TurtleMgr.getByLoc(event.getBlock().getLocation());
 		if (t == null)
@@ -49,7 +44,7 @@ public class PlayerListener implements Listener {
 	public void onOpeninv(PlayerInteractEvent event) {
 		if (event.getPlayer().isSneaking() 
 				|| event.getClickedBlock() == null 
-				|| event.getClickedBlock().getType() != Main.turtleMaterial
+				|| event.getClickedBlock().getType() != Main.TURTLE_MATERIAL
 				|| event.getAction() == Action.LEFT_CLICK_BLOCK) {
 			return;
 		}
@@ -58,7 +53,7 @@ public class PlayerListener implements Listener {
 		Turtle t = TurtleMgr.getByLoc(blk.getLocation());
 		if (t == null) {
 			Player player = event.getPlayer();
-			if (player.getItemInHand().getType() == Main.turtleWand) {
+			if (player.getItemInHand().getType() == Main.TURTLEWAND_MATERIAL) {
 				createTurtle(p, blk.getLocation());
 				event.setCancelled(true);
 			}
@@ -79,7 +74,7 @@ public class PlayerListener implements Listener {
 	 */
 	public void createTurtle(Player player, final Location l) {
 		//get the name of the turtle from the user
-		SignGUI gui = new SignGUI(plugin);
+		SignGUI gui = new SignGUI(Main.inst);
 		gui.open(player, new String[]{"", "Enter a turtle", "name on the first", "line of this sign."}, new SignGUI.SignGUIListener() {
 			@Override
 			public void onSignDone(Player player, String[] lines) {
@@ -91,7 +86,7 @@ public class PlayerListener implements Listener {
 				System.out.println("Creating new turtle named:"+name);
 				Turtle t = TurtleMgr.getByName(name);
 				if (t == null) {
-					t = TurtleMgr.getNewTurtle(name, Main.turtleMaterial, l, player.getName());
+					t = TurtleMgr.getNewTurtle(name, Main.TURTLE_MATERIAL, l, player.getName());
 					player.sendMessage(ChatColor.GREEN + "Created turtle: " + t.getName());
 				} else {
 					player.sendMessage(ChatColor.RED + "A turtle with that name already exists.");
