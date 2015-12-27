@@ -437,65 +437,25 @@ public class Turtle {
 //		running = false;
 //	}
 
-	
 
-	/*
-	 * public BlockFace getBlockFace(Face face) { int dirr = dir +
-	 * face.getDir(); if(face.getDir() == 4) return BlockFace.UP;
-	 * if(face.getDir() == 5) return BlockFace.DOWN; if (dirr > 3) dir -= 3; if
-	 * (dirr == 0) return BlockFace.SOUTH; if (dirr == 1) return BlockFace.WEST;
-	 * if (dirr == 2) return BlockFace.NORTH; return BlockFace.EAST; }
+	/**
+	 * Get the material type of the item in the inventory slot
+	 * @param slot the slot number to check
+	 * @return item type, else return Material.AIR
 	 */
+	private Material getType(int slot) {
+		ItemStack is = getInventory().getItem(slot);
+		return is == null ? Material.AIR : is.getType();
+	}
 
-	public BlockFace getBlockFace(Face fface) {
-		BlockFace face = this.getDir();
-		if (fface.getDir() == 4)
-			return BlockFace.UP;
-		if (fface.getDir() == 5)
-			return BlockFace.DOWN;
-
-		if (face == BlockFace.NORTH) {
-			if (fface == Face.LEFT) {
-				return BlockFace.WEST;
-			} else if (fface == Face.RIGHT) {
-				return BlockFace.EAST;
-			} else if (fface == Face.FORWARD) {
-				return BlockFace.NORTH;
-			} else if (fface == Face.BACK) {
-				return BlockFace.SOUTH;
-			}
-		} else if (face == BlockFace.SOUTH) {
-			if (fface == Face.LEFT) {
-				return BlockFace.WEST;
-			} else if (fface == Face.RIGHT) {
-				return BlockFace.EAST;
-			} else if (fface == Face.FORWARD) {
-				return BlockFace.SOUTH;
-			} else if (fface == Face.BACK) {
-				return BlockFace.NORTH;
-			}
-		} else if (face == BlockFace.WEST) {
-			if (fface == Face.LEFT) {
-				return BlockFace.SOUTH;
-			} else if (fface == Face.RIGHT) {
-				return BlockFace.NORTH;
-			} else if (fface == Face.FORWARD) {
-				return BlockFace.WEST;
-			} else if (fface == Face.BACK) {
-				return BlockFace.EAST;
-			}
-		} else if (face == BlockFace.EAST) {
-			if (fface == Face.LEFT) {
-				return BlockFace.NORTH;
-			} else if (fface == Face.RIGHT) {
-				return BlockFace.SOUTH;
-			} else if (fface == Face.FORWARD) {
-				return BlockFace.EAST;
-			} else if (fface == Face.BACK) {
-				return BlockFace.WEST;
-			}
-		}
-		return BlockFace.SELF;
+	/**
+	 * Check the type of a block immediately adjacent to the turtle
+	 * @param face the direction to check
+	 * @param mat the material to look for
+	 * @return true if the block in face direction is the same material as mat
+	 */
+	private boolean checkType(BlockFace face, Material mat) {
+		return this.loc.getBlock().getRelative(face).getType() == mat;
 	}
 
 //	public void processCommand(String label, String[] args) {
@@ -515,23 +475,5 @@ public class Turtle {
 //			}
 //		}
 //	}
-
-	private Material getType(String arg) {
-		if (arg.startsWith("slot:")) {
-			ItemStack is = getInventory().getItem(Integer.parseInt(arg.substring(5)));
-			return is == null ? Material.AIR : is.getType();
-		}
-		return Material.getMaterial(arg);
-	}
-
-	private boolean check(Face face, Material mat) {
-		return this.loc.getBlock().getRelative(getBlockFace(face)).getType() == mat;
-	}
-
-
-
-	// statics
-	
-
 	
 }
